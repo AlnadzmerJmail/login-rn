@@ -8,21 +8,26 @@ import {
 	Image,
 	Button,
 	Text,
+	ActivityIndicator,
 	TextInput,
 	useWindowDimensions,
+	Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 function Login() {
+	const navigation = useNavigation();
 	const { height } = useWindowDimensions();
 
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 
 	const loginHandler = async () => {
-		console.log(email, password);
-
 		try {
+			if (!password || !email) {
+				throw new Error('Emai and Password are required!');
+			}
+
 			const res = await fetch('http://127.0.0.1:8000/api/login', {
 				method: 'POST',
 				headers: {
@@ -33,13 +38,12 @@ function Login() {
 
 			if (res.status === 200) {
 				const user = await res.json();
-				return console.log(user);
+				return navigation.navigate('Home');
 			}
 
-			throw new Error('Please enter a valid IP Address');
+			throw new Error('User not found!');
 		} catch (error) {
-			// setError(error);
-			console.log('get error-->>', error);
+			Alert.alert(error);
 		}
 	};
 

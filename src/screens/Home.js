@@ -9,6 +9,7 @@ import {
 	Button,
 	Text,
 	TextInput,
+	Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,26 +23,13 @@ function Home() {
 	const [ip, setIp] = useState('');
 	const [error, setError] = useState('');
 
-	console.log('GEO-->>', gelocation);
-	console.log('ERROR-->>', error);
-
-	// useEffect(() => {
-
-	// 	fetchGeolocation(ip);
-	// }, []);
-
 	useEffect(() => {
-		if (!sessionStorage.getItem('user')) return navigation.navigate('Login');
-
 		fetchGeolocation(defaultIp);
-
-		console.log(localStorage.getItem('user'));
 	}, []);
 
 	// functions
 	const fetchGeolocation = async (ip) => {
 		try {
-			console.log('THE IP IS....', ip);
 			const res = await fetch(`https://ipinfo.io/${ip}/geo`, {
 				method: 'GET',
 			});
@@ -54,15 +42,11 @@ function Home() {
 			throw new Error('Please enter a valid IP Address');
 		} catch (error) {
 			setError(error);
-			// console.log('get error-->>', error);
+			Alert.alert(error);
 		}
-	};
-	const login = () => {
-		navigation.navigate('Login');
 	};
 
 	const searchHandler = (e) => setIp(e);
-	// console.log('hey home....');
 
 	const clearIp = () => {
 		setIp('');

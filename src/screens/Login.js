@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useReducer } from 'react';
 import {
 	View,
 	StyleSheet,
@@ -15,12 +15,18 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
+import { reducer, initialState } from '../reducer';
+
 function Login() {
 	const navigation = useNavigation();
 	const { height } = useWindowDimensions();
 
+	const [stateReducer, dispatch] = useReducer(reducer, initialState);
+
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
+
+	console.log(dispatch);
 
 	const loginHandler = async () => {
 		try {
@@ -38,6 +44,7 @@ function Login() {
 
 			if (res.status === 200) {
 				const user = await res.json();
+				dispatch({ type: 'login', value: true });
 				return navigation.navigate('Home');
 			}
 

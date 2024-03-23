@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useReducer } from 'react';
 import {
 	View,
 	StyleSheet,
@@ -12,20 +12,36 @@ import {
 	Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
+import publicIP from 'react-native-public-ip';
+
+import { reducer, initialState } from '../reducer';
+
+// import { Ionicons } from '@expo/vector-icons';
 
 function Home() {
 	const navigation = useNavigation();
-	const defaultIp = '130.105.100.77';
+	const [{ isLoggedIn }] = useReducer(reducer, initialState);
 
 	// state
+	const [defaultIp, setDefaultIp] = useState('');
 	const [gelocation, setGelocation] = useState(null);
 	const [ip, setIp] = useState('');
-	const [error, setError] = useState('');
 
 	useEffect(() => {
-		fetchGeolocation(defaultIp);
-	}, []);
+		if (!isLoggedIn) return navigation.navigate('Login');
+
+		const fetchIpAddress = async () => {
+			try {
+				const defaultIp = await publicIP();
+				setDefaultIp(defaultIp);
+				fetchGeolocation(defaultIp);
+			} catch (error) {
+				Alert.alert('Error fetching IP address');
+			}
+		};
+
+		fetchIpAddress();
+	}, [isLoggedIn]);
 
 	// functions
 	const fetchGeolocation = async (ip) => {
@@ -41,7 +57,6 @@ function Home() {
 
 			throw new Error('Please enter a valid IP Address');
 		} catch (error) {
-			setError(error);
 			Alert.alert(error);
 		}
 	};
@@ -84,13 +99,11 @@ function Home() {
 						<TextInput
 							style={styles.input}
 							placeholder="Search IP Address..."
-							// multiline
 							value={ip}
 							onChangeText={searchHandler}
 						/>
 
 						<TouchableOpacity style={styles.iconContainer} onPress={clearIp}>
-							{/* <Ionicons name="close-circle" size={24} color="gray" /> */}
 							<Text style={{ fontSize: 13, paddingLeft: 5 }}>Clear</Text>
 						</TouchableOpacity>
 					</View>
@@ -134,11 +147,9 @@ const styles = StyleSheet.create({
 	},
 
 	input: {
-		// marginTop: 30,
 		width: '90%',
 		padding: 10,
 		border: '2px solid orange',
-		// borderColor: 'transparent',
 		borderRadius: 4,
 	},
 
